@@ -1,5 +1,5 @@
 """
-이퓨스튜디오 6월 예약 자리 모니터.
+이퓨스튜디오 7-8월 예약 자리 모니터.
 available 배열에 뭐가 들어오면 디스코드로 알림.
 """
 import os
@@ -10,11 +10,11 @@ from datetime import date, timedelta
 
 # ===== 설정 =====
 WEBHOOK_URL = os.environ["DISCORD_WEBHOOK_URL"]  # GitHub Secrets에서 주입
-TARGET_MONTH = (2026, 6)  # 6월 모니터링
+TARGET_MONTHS = [(2026, 7), (2026, 8)]  # 7월, 8월 모니터링
 STATE_FILE = "state.json"  # 직전에 알림 보낸 슬롯 기록 (중복 알림 방지)
 
-# 특정 날짜만 노리고 싶으면 여기에 적기. 비워두면 6월 전체.
-# 예: TARGET_DATES = ["2026-06-15", "2026-06-22"]
+# 특정 날짜만 노리고 싶으면 여기에 적기. 비워두면 7-8월 전체.
+# 예: TARGET_DATES = ["2026-07-15", "2026-08-22"]
 TARGET_DATES = []
 
 API_URL = "https://www.ifustudio.kr/booking/get_prod_list.cm"
@@ -80,7 +80,9 @@ def main():
     if TARGET_DATES:
         dates_to_check = TARGET_DATES
     else:
-        dates_to_check = month_dates(*TARGET_MONTH)
+        dates_to_check = []
+        for year, month in TARGET_MONTHS:
+            dates_to_check.extend(month_dates(year, month))
 
     prev_state = load_state()
     new_state = {}
@@ -109,7 +111,7 @@ def main():
 
     # 새로 열린 자리 있으면 알림
     if new_openings:
-        lines = ["🐳 **이퓨스튜디오 6월 예약 자리 열림!**\n"]
+        lines = ["🐳 **이퓨스튜디오 7-8월 예약 자리 열림!**\n"]
         # 날짜별로 묶기
         by_date = {}
         for day, name in new_openings:
